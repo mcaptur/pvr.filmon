@@ -410,7 +410,7 @@ bool filmonAPIgetChannel(unsigned int channelId, FILMON_CHANNEL *channel) {
 		Json::Reader reader2;
 		reader2.parse(response, root2);
 				XBMC->Log(LOG_NOTICE, "number of programme %u", root2[1]["programme_name"]);
-		for (unsigned int i = 0; i < root2.size(); i++) {
+		for (unsigned int p = 0; p < root2.size(); p++) {
 		Json::Value broadcastId = root2[p]["programme"];
 			std::string programmeId = broadcastId.asString();
 			Json::Value startTime = root2[p]["startdatetime"];
