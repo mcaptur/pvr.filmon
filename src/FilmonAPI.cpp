@@ -403,7 +403,10 @@ bool filmonAPIgetChannel(unsigned int channelId, FILMON_CHANNEL *channel) {
 		unsigned int entries = 0;
 		unsigned int programmeCount = tvguide.size();
 		std::string offAir = std::string("OFF_AIR");
-		for (unsigned int p = 0; p < programmeCount; p++) {
+		XBMC->Log(LOG_NOTICE, "programe out of loop %u", tvguide[1]["programme_name"]);
+		for (unsigned int p = 0; p < 20; p++) {
+			XBMC->Log(LOG_NOTICE, "programe1 %u", tvguide[1]["programme_name"]);
+			XBMC->Log(LOG_NOTICE, "desc %u", tvguide[1]["programme_description"]);
 			Json::Value broadcastId = tvguide[p]["programme"];
 			std::string programmeId = broadcastId.asString();
 			Json::Value startTime = tvguide[p]["startdatetime"];
