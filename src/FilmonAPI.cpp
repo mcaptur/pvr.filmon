@@ -401,7 +401,7 @@ bool filmonAPIgetChannel(unsigned int channelId, FILMON_CHANNEL *channel) {
 		// Get EPG
 		XBMC->Log(LOG_DEBUG, "building EPG");
 		unsigned int entries = 0;
-		unsigned int programmeCount = tvguide.size();
+
 		std::string offAir = std::string("OFF_AIR");
 		bool res2 = filmonRequest("tv/api/tvguide/" + intToString(channelId),
 			sessionKeyParam);
