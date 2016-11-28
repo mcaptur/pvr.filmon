@@ -409,8 +409,9 @@ bool filmonAPIgetChannel(unsigned int channelId, FILMON_CHANNEL *channel) {
 		Json::Value root2;
 		Json::Reader reader2;
 		reader2.parse(response, root2);
-				XBMC->Log(LOG_NOTICE, "number of evens %u", root2.size());
-		for (unsigned int p = 0; p < root2.size(); p++) {
+		unsigned int programmeCount = root2.size();
+		XBMC->Log(LOG_NOTICE, "number of evens %u", root2.size());
+		for (unsigned int p = 0; p < programmeCount; p++) {
 			Json::Value broadcastId = root2[p]["programme"];
 			std::string programmeId = broadcastId.asString();
 			Json::Value startTime = root2[p]["startdatetime"];
