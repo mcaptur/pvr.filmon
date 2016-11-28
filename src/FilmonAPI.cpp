@@ -403,17 +403,21 @@ bool filmonAPIgetChannel(unsigned int channelId, FILMON_CHANNEL *channel) {
 		unsigned int entries = 0;
 		unsigned int programmeCount = tvguide.size();
 		std::string offAir = std::string("OFF_AIR");
-		XBMC->Log(LOG_NOTICE, "programe out of loop %u", tvguide[1]["programme_name"]);
-		for (unsigned int p = 0; p < 20; p++) {
-			XBMC->Log(LOG_NOTICE, "programe1 %u", tvguide[1]["programme_name"]);
-			XBMC->Log(LOG_NOTICE, "desc %u", tvguide[1]["programme_description"]);
-			Json::Value broadcastId = tvguide[p]["programme"];
+		bool res2 = filmonRequest("tv/api/tvguide/" + intToString(channelId),
+			sessionKeyParam);
+	if (res2) {
+		Json::Value root2;
+		Json::Reader reader2;
+		reader2.parse(response, root2);
+				XBMC->Log(LOG_NOTICE, "number of programme %u", root2[1]["programme_name"]);
+		for (unsigned int i = 0; i < root2.size(); i++) {
+		Json::Value broadcastId = root2[p]["programme"];
 			std::string programmeId = broadcastId.asString();
-			Json::Value startTime = tvguide[p]["startdatetime"];
-			Json::Value endTime = tvguide[p]["enddatetime"];
-			Json::Value programmeName = tvguide[p]["programme_name"];
-			Json::Value plot = tvguide[p]["programme_description"];
-			Json::Value images = tvguide[p]["images"];
+			Json::Value startTime = root2[p]["startdatetime"];
+			Json::Value endTime = root2[p]["enddatetime"];
+			Json::Value programmeName = root2[p]["programme_name"];
+			Json::Value plot = root2[p]["programme_description"];
+			Json::Value images = root2[p]["images"];
 			FILMON_EPG_ENTRY epgEntry;
 			if (programmeId.compare(offAir) != 0) {
 				epgEntry.strTitle = programmeName.asString();
@@ -447,8 +451,9 @@ bool filmonAPIgetChannel(unsigned int channelId, FILMON_CHANNEL *channel) {
 			(channel->epg).push_back(epgEntry);
 			entries++;
 		}
-		XBMC->Log(LOG_DEBUG, "number of EPG entries is %u", entries);
+		XBMC->Log(LOG_NOTICE, "number of EPG entries is %u", entries);
 		clearResponse();
+	    }
 	}
 	return res;
 }
