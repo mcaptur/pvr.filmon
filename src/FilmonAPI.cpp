@@ -399,62 +399,55 @@ bool filmonAPIgetChannel(unsigned int channelId, FILMON_CHANNEL *channel) {
 		(channel->epg).clear();
 
 		// Get EPG
-		XBMC->Log(LOG_NOTICE, "building EPG");
+		XBMC->Log(LOG_DEBUG, "building EPG");
 		unsigned int entries = 0;
+		unsigned int programmeCount = tvguide.size();
+		XBMC->Log(LOG_NOTICE, "number of EPG entries is %u", programmeCount);
+		XBMC->Log(LOG_NOTICE, "EPG is %s", tvguide);
 		std::string offAir = std::string("OFF_AIR");
-		bool res2 = filmonRequest("tv/api/tvguide/" + intToString(channelId), sessionKeyParam);
-		if (res2 == true) {
-			Json::Value root2;
-			Json::Reader reader2;
-			reader2.parse(response, root2);
-			unsigned int programmeCount = root2.size();
-			XBMC->Log(LOG_NOTICE, "number of events %u", root2.size());
-			for (unsigned int p = 0; p < programmeCount; p++) {
-				XBMC->Log(LOG_NOTICE, "Iteration number %u", p);
-				XBMC->Log(LOG_NOTICE, "programme name %s", root2[p]["programme_name"]);
-				Json::Value broadcastId = root2[p]["programme"];
-				std::string programmeId = broadcastId.asString();
-				Json::Value startTime = root2[p]["startdatetime"];
-				Json::Value endTime = root2[p]["enddatetime"];
-				Json::Value programmeName = root2[p]["programme_name"];
-				Json::Value plot = root2[p]["programme_description"];
-				Json::Value images = root2[p]["images"];
-				FILMON_EPG_ENTRY epgEntry;
-				if (programmeId.compare(offAir) != 0) {
-					epgEntry.strTitle = programmeName.asString();
-					epgEntry.iBroadcastId = stringToInt(programmeId);
-					if (plot.isNull() != true) {
-						epgEntry.strPlot = plot.asString();
-					}
-					if (!images.empty()) {
-						Json::Value programmeIcon = images[(unsigned int)0]["url"];
-						epgEntry.strIconPath = programmeIcon.asString();
-					} else {
-						epgEntry.strIconPath = "";
-					}
+		for (unsigned int p = 0; p < programmeCount; p++) {
+			Json::Value broadcastId = tvguide[p]["programme"];
+			std::string programmeId = broadcastId.asString();
+			Json::Value startTime = tvguide[p]["startdatetime"];
+			Json::Value endTime = tvguide[p]["enddatetime"];
+			Json::Value programmeName = tvguide[p]["programme_name"];
+			Json::Value plot = tvguide[p]["programme_description"];
+			Json::Value images = tvguide[p]["images"];
+			FILMON_EPG_ENTRY epgEntry;
+			if (programmeId.compare(offAir) != 0) {
+				epgEntry.strTitle = programmeName.asString();
+				epgEntry.iBroadcastId = stringToInt(programmeId);
+				if (plot.isNull() != true) {
+					epgEntry.strPlot = plot.asString();
+				}
+				if (!images.empty()) {
+					Json::Value programmeIcon = images[(unsigned int)0]["url"];
+					epgEntry.strIconPath = programmeIcon.asString();
 				} else {
-					epgEntry.strTitle = offAir;
-					epgEntry.iBroadcastId = 0;
-					epgEntry.strPlot = "";
 					epgEntry.strIconPath = "";
 				}
-				epgEntry.iChannelId = channelId;
-				if (startTime.isString()) {
-					epgEntry.startTime = stringToInt(startTime.asString());
-					epgEntry.endTime = stringToInt(endTime.asString());
-				} else {
-					epgEntry.startTime = startTime.asUInt();
-					epgEntry.endTime = endTime.asUInt();
-				}
-				epgEntry.strPlotOutline = "";
-				epgEntry.iGenreType = filmonAPIgetGenre(group.asString());
-				epgEntry.iGenreSubType = 0;
-				(channel->epg).push_back(epgEntry);
-				entries++;
+			} else {
+				epgEntry.strTitle = offAir;
+				epgEntry.iBroadcastId = 0;
+				epgEntry.strPlot = "";
+				epgEntry.strIconPath = "";
 			}
-		XBMC->Log(LOG_NOTICE, "final number of EPG entries is %u", entries);
+			epgEntry.iChannelId = channelId;
+			if (startTime.isString()) {
+				epgEntry.startTime = stringToInt(startTime.asString());
+				epgEntry.endTime = stringToInt(endTime.asString());
+			} else {
+				epgEntry.startTime = startTime.asUInt();
+				epgEntry.endTime = endTime.asUInt();
+			}
+			epgEntry.strPlotOutline = "";
+			epgEntry.iGenreType = filmonAPIgetGenre(group.asString());
+			epgEntry.iGenreSubType = 0;
+			(channel->epg).push_back(epgEntry);
+			entries++;
+		}
+		XBMC->Log(LOG_NOTICE, "number of EPG entries is %u", entries);
 		clearResponse();
-	    }
 	}
 	return res;
 }
@@ -764,4 +757,3 @@ void filmonAPIgetUserStorage(long long *iTotal, long long *iUsed) {
 //	}
 //	filmonAPIDelete();
 //}
-
